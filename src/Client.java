@@ -1,25 +1,25 @@
 
 public class Client {
 	
-	// This class represents the running client.
+	// This class represents the initial running client.
 	
   // methods
 	/*
-	 *  1.  connect to server and receive clientID
+	 *  1.  connect to server and passes  clientID, type EXEC 
 	 *  
-	 *  2.  send orders to server
+	 *  	1a.  make a NEW ClientGateway object passing client ID
+	 *  	 the Client gateway reader is a SECOND SOCKET, and it
+	 *         listens for messages from gateway.
 	 *  
-	 *  3.  listen for fills 
+	 *  2.  send orders to server -> wait for stdin, or show menu etc.
 	 *  
-	 *  4. send order cancelleations
 	 *  
-	 *  5. request market data.
+	 *  
+	 *  3. send order cancelleations
+	 *  
+	 *  4. request market data.
 	 * 
 	 * 
-	 * 
-	 *   I'm not sure yet if we can do this with one connection, or if we need to make 2, 
-	 *   1 connection to receive push messages from the exchange (fills)
-	 *   2nd connection to send orders, request market data 
 	 * 
 	 */
 	

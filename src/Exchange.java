@@ -4,13 +4,18 @@ public class Exchange {
 
 	
 	//  1.  Listen for incoming connections
-	//  2.  Start a thread for each connection
-	//		2a.  generate unique ID and pass to connection object
-			//2b.  we will need to create a dictionary of clientID, and the var representing
-			// the thread so that messages can be sent to specific Ids i believe.
+	//  2.  Start a thread for each connection  ( each thread will be a Connection object)
 	
+	//	
+			//2b.  we will need to create a  dictionary of clientID, and the var representing
+			// the thread so that messages can be sent to specific Ids i believe.
+	// tthis dictionary will be public, and each Connection object will be responsible
+	// for adding iteslf to the dictionary, as soon as it learns what 'type' of connection it 
+	// is.  type being either exececution, or reporting .
+	        
 	//  3.  form threadsafe collection for incoming orders/messages
 			
+	
 	
 	
 	
