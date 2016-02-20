@@ -31,7 +31,7 @@ public class Exchange {
 			
 			
 			new Thread(
-					new ClientConnection(clientSock) ).start();					
+					new Connection(clientSock) ).start();					
 			
 			
 			
