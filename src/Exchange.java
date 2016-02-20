@@ -1,10 +1,48 @@
-
+import java.awt.List;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Exchange {
 
+	private boolean isStopped;
 	
 	//  1.  Listen for incoming connections
 	//  2.  Start a thread for each connection  ( each thread will be a Connection object)
+	private ServerSocket serverSock; //servers main listening socket.
+	
+	
+	
+	public void runServer(){
+		
+		Socket clientSock = null;
+		
+		while(!isStopped){
+			try {
+				
+				clientSock = this.serverSock.accept();
+			}// end try
+			catch (IOException e) {
+				System.out.println("Error connecting to client");
+			}
+			
+			
+			new Thread(
+					new ClientConnection(clientSock) ).start();					
+			
+			
+			
+		}//end while 
+		
+		
+	}
+	
+	
+	
+	
 	
 	//	
 			//2b.  we will need to create a  dictionary of clientID, and the var representing
@@ -14,7 +52,8 @@ public class Exchange {
 	// is.  type being either exececution, or reporting .
 	        
 	//  3.  form threadsafe collection for incoming orders/messages
-			
+	public ConcurrentLinkedQueue<Message> incomingQueue;
+	
 	
 	
 	
@@ -44,6 +83,9 @@ public class Exchange {
 	 *   We could add type to this, but probably not necessary right now.
 	 * 
 	 */
+	
+	public Map<Double, Collection<String>> orderbook;  //order book for all prices.
+	
 	
 	
 	
