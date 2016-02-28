@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
+import java.util.concurrent.*;
 public class Exchange {
 
 	private boolean isStopped;
@@ -53,10 +53,7 @@ public class Exchange {
 	        
 	//  3.  form threadsafe collection for incoming orders/messages
 	public ConcurrentLinkedQueue<Message> incomingQueue;
-	
-	
-	
-	
+
 	
 	//	4. write loop to continuously parse ^order queue 
 	/*  logic for  loop is this
@@ -84,7 +81,7 @@ public class Exchange {
 	 * 
 	 */
 	
-	public Map<Double, Collection<String>> orderbook;  //order book for all prices.
+	public ConcurrentMap<Double, Collection<String>> orderbook;  //order book for all prices.
 	
 	
 	

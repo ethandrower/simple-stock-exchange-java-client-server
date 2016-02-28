@@ -1,5 +1,5 @@
 
-public class ClientGatewayReader {
+public class ClientGatewayReader implements Runnable {
 
 	
 	// This class will implement runnable and will run ON THE CLIENT
@@ -10,6 +10,10 @@ public class ClientGatewayReader {
 	// two pass string indicating client ID, type FEED.
 	// listen in loop for messages.
 	// print messages out.
+	
+	public void run(){
+		
+	}
 	
 	
 }

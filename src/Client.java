@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 
 public class Client implements Runnable{
 	
-	// This class represents the initial running client.
+	// This class represents the initial LOCAL running client.
 	
   // methods
 	/*
@@ -29,11 +29,55 @@ public class Client implements Runnable{
 	 * 
 	 * 
 	 */
+	//private String clientID;
+	//private ClientConnectionType connectionType;
 	
 	
 	
+	//Args from client  args[clientID, connectionType]
+	public static void main(String args[])
+	{
+		String clientID = args[0];
+		String connectionType = args[1];
+		
+		switch(connectionType){
+		
+		case "FEED":
+			
+			new Thread(
+					new ClientGatewayReader()).start();					
+			
+				
+						
+			break;
+			
+		case "EXEC":
+			//create exec connection
+			new Thread(
+					new ClientGatewayExec()).start();	
+			
+			
+			break;
+			
+		default:
+			System.out.println("Could not read connection type. Exiting...");
+			
+		}
+		
+		
+		
+	}
 	
-
+	public static void startExec(){
+		
+		//read args from user input.
+		//open socket connection to server.
+		// send initial message to server to identify connection type.  array[clientID, Type]
+		
+		
+	}
+	
+	
 }
 
 
