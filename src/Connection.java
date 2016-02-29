@@ -111,10 +111,9 @@ public class Connection implements Runnable {
 					switch(messageType){
 					
 					case "NewOrder":
+						//create new order object.
 						Order incomingOrder = new Order(messageArray[0], OrderType.valueOf(messageArray[2]), Integer.parseInt(messageArray[3]), Double.parseDouble(messageArray[4]));
-						exchange.addOrder(incomingOrder);
-						
-						
+						exchange.addOrder(incomingOrder);	
 						break;
 						
 					case "CancelOrder":

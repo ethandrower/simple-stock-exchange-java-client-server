@@ -69,7 +69,14 @@ public class Exchange {
 		
 		//if we cant fill right away, add the order to the orderbook
 		if( !instantFill(orderToAdd))
+		{
+			//add the order to the book
 			orderbook.get(orderToAdd.price).add(orderToAdd);
+			
+			//Send a fill message to the correct client
+			clientFeeds.get(orderToAdd.clientID).feedMessageQueue.add("Order added with ID: " + orderToAdd.orderID.toString());
+			
+		}
 
 	}
 	
@@ -94,21 +101,48 @@ public class Exchange {
 					{
 						priceLevel.getValue().remove(individualOrder);// remove the order.
 						match(orderToFill, individualOrder);
-						return true;
-	
-					
-					}
-					
-					
+						return true;		
+					}			
 				}
 				
+			}// end of outer for each
+			
+			
+			
+			
+		} // end order type IF statement
+		else if (orderToFill.type == OrderType.SELL)
+		{
+	
+			
+			Order currentBestFill = new Order();
+			for ( ConcurrentMap.Entry<Double, Collection<Order> > priceLevel : orderbook.entrySet())
+			{
+				for (Order individualOrder : priceLevel.getValue())
+				{
+					
+					
+					if (orderToFill.price >= individualOrder.price && individualOrder.type == OrderType.BUY)
+					{
+						//potential match found,  lets keep looking for a better price.
+						currentBestFill = individualOrder;	
+						break;
+					//	return true;		
+					}			
+				}
+			}// end oouter for
+			
+			if (currentBestFill.isRealOrder)
+			{
 				
+				orderbook.get(currentBestFill.price).remove(currentBestFill);  // this may be buggy
+				
+				//priceLevel.getValue().remove(individualOrder);// remove the order.
+				match(orderToFill, currentBestFill);
+				return true;
 			}
 			
-			
-			
-			
-		}
+		} // end iff 
 		
 		
 		
@@ -132,10 +166,24 @@ public class Exchange {
 	public void cancelOrder(String clientID, String orderID)
 	{
 		
+		// iterate through the orderbook until you find the ORDER ID
+		// when you do find it, remove it
+		//then send message to the client.
+		
+		
 	}
 	
 	public void sendMarketData(String clientID)
 	{
+		//giant strig builder   print statment that is all (top) orders in the queue.
+		
+		
+		StringBuilder book = new StringBuilder();
+		
+		// for each price level
+				// if first order exists,  print it's type and price/qty
+		
+		//r.append(System.getProperty("line.separator"));  for new line chars independt of system 
 		
 	}
 	
@@ -165,6 +213,8 @@ public class Exchange {
 	// is.  type being either exececution, or reporting .
 	        
 	//  3.  form threadsafe collection for incoming orders/messages
+
+	// not sure we need the below...
 	public ConcurrentLinkedQueue<Message> incomingQueue;
 
 	
