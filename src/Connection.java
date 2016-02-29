@@ -30,10 +30,13 @@ public class Connection implements Runnable {
 	
 	private PrintWriter out;
 	private BufferedReader in;
+	private Exchange exchange;
 	
-	public Connection (Socket clientSocket)
+	
+	public Connection (Socket clientSocket, Exchange excObj)
 	{
 		this.conn = clientSocket;
+		this.exchange = excObj;
 		
 	}
 	
@@ -46,7 +49,9 @@ public class Connection implements Runnable {
 			 in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			
 			 // now we must get the ID, and type from the client
-			String bufferString = "";
+			//Args from client  args[clientID, connectionType]
+			 String bufferString = "";
+			
 			bufferString = in.readLine();
 			String[] clientInfo = bufferString.split("|", 5);
 			this.clientID = clientInfo[0];
@@ -83,6 +88,10 @@ public class Connection implements Runnable {
 		
 	} // end of run
 	
+	// format for exchange exec messages
+			// New orders =  clientID + '|' + messageType + '|' + [orderType] + '|' + [quantity]+ '|' + [price]
+			// Cancel Orders = clientID + '|' + messageType + '|' + [orderID]
+			// request for market data = clientID + '|' + messageType
 	public void runExec(){
 		
 		//listen in loop for messages from client
@@ -97,7 +106,30 @@ public class Connection implements Runnable {
 				{
 					String[] messageArray = input.split("|", 5);
 					//now we process the message and send commands to exchange accordingly
+					String messageType = messageArray[1];
 					
+					switch(messageType){
+					
+					case "NewOrder":
+						Order incomingOrder = new Order(messageArray[0], OrderType.valueOf(messageArray[2]), Integer.parseInt(messageArray[3]), Double.parseDouble(messageArray[4]));
+						exchange.addOrder(incomingOrder);
+						
+						
+						break;
+						
+					case "CancelOrder":
+						
+						break;
+						
+						
+					case "MarketData":
+						break;
+						
+					 default:
+						 
+						break;
+					
+					}
 				}
 			} catch (IOException e)
 			{

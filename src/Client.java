@@ -36,26 +36,28 @@ public class Client {
 	
 	
 	//Args from client  args[clientID, connectionType]
-	public static void main(String args[])
+	public static void main(String args[]) throws IOException
 	{
 		String clientID = args[0];
 		String connectionType = args[1];
+		int port = Integer.parseInt(args[2]);
+		
 		
 		switch(connectionType){
 		
 		case "FEED":
-			
-			new Thread(
-					new ClientGatewayReader()).start();					
-			
+		startFeed(clientID, port);	
+		//	new Thread(	new ClientGatewayReader()).start();					
+		
 				
 						
 			break;
 			
 		case "EXEC":
 			//create exec connection
-			new Thread(
-					new ClientGatewayExec()).start();	
+			startExec(clientID, port);
+			
+			//new Thread(	new ClientGatewayExec()).start();	
 			
 			
 			break;
@@ -69,11 +71,11 @@ public class Client {
 		
 	}
 	
-	public static void startExec(String clientID, String connType) throws IOException{
+	public static void startExec(String clientID, int port) throws IOException{
 		
 		//read args from user input.
 		//open socket connection to server.
-		Socket connExchange = new Socket("localhost", 123);
+		Socket connExchange = new Socket("localhost", port);
 		BufferedReader input = new BufferedReader(new InputStreamReader(connExchange.getInputStream()));
 		PrintWriter output = new PrintWriter(connExchange.getOutputStream());
 		
@@ -86,24 +88,46 @@ public class Client {
 		//Loop asking for user input, sending orders etc.    
 		
 		
-		
+		// format for exchange exec messages
+		// New orders =  clientID + '|' + messageType + '|' + [orderType] + '|' + [quantity]+ '|' + [price]
+		// Cancel Orders = clientID + '|' + messageType + '|' + [orderID]
+		// request for market data = clientID + '|' + messageType
+		Console c = System.console();
 		while(isRunning)
 		{
 			printMenu();
-			Console c = System.console();
+			
 			String command = c.readLine();
 			int action = Integer.parseInt(command);
 			switch(action){
 			case 1:
 				//creat order
+				System.out.println("Order Entry:  [buy/sell] | [quantity] | [price]");
+				String order = c.readLine();
+				String[] orderArray = order.split("|");
+				
+				
+				System.out.println("Sending order...");
+				output.println(clientID + "|" + "NewOrder" + "|" + orderArray[0] + "|" + orderArray[1] + "|" + orderArray[2]);
+				
+				
 				break;
 				
 			case 2: 
 				//cancel order
+				String cancelID = c.readLine("Enter Order ID to Cancel");
+				System.out.println("Sending Cancellation to exchange...");
+				
+				output.println(clientID + "|" + "CancelOrder" + "|" + cancelID );
+				
 				break;
 				
 			case 3:
 				//request market data
+				System.out.println("Requesting market data...");
+				output.println(clientID + "|" + "MarketData");
+				
+				
 				break;
 			case 4:
 				//exit
@@ -115,6 +139,7 @@ public class Client {
 				break;
 			
 			}
+			System.out.println("Client exiting...");
 			
 			
 		}

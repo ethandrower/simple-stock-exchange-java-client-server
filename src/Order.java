@@ -6,13 +6,13 @@ public class Order
 {
 	//simple class that will contain a clientID string, and a price.
 	// could be expanded to contain productID, order type, status...
-	private double price;
-	private int quantity;
-	private String clientID;
+	public double price;
+	public int quantity;
+	public String clientID;
 	private UUID orderID;
-	private OrderType type;
+	public OrderType type;
 	
-	public Order(int qty,  double price, String client, OrderType type)
+	public Order( String client, OrderType type, int qty,  double price  )
 	{
 		this.price = price;
 		this.quantity = qty;

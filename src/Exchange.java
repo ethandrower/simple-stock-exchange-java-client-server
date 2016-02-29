@@ -1,4 +1,6 @@
 import java.awt.List;
+import java.util.Dictionary;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,11 +16,33 @@ public class Exchange {
 	//  2.  Start a thread for each connection  ( each thread will be a Connection object)
 	private ServerSocket serverSock; //servers main listening socket.
 	
+	private Dictionary<String, Connection> clientFeeds;
 	
+	private ConcurrentMap<Double, Collection<Order>> orderbook;
 	
-	public void runServer(){
+	public static void main(String args[]) throws IOException{
+		
+		//Read port from stdinput
+		// Then init one Exchange object.  this will create all the message queues and order structs
+		//  call runServer
+		int port = Integer.parseInt(args[0]);
+		Exchange OurExchange = new Exchange();
+		
+		OurExchange.runServer(port);
+		
+	}
+	
+	public Exchange(){
+		// constructor for our main exchange
+		
+		
+	}
+	public void runServer(int port) throws IOException{
 		
 		Socket clientSock = null;
+		this.serverSock = new ServerSocket(port);
+		
+		
 		
 		while(!isStopped){
 			try {
@@ -31,17 +55,106 @@ public class Exchange {
 			
 			
 			new Thread(
-					new Connection(clientSock) ).start();					
+					new Connection(clientSock, this) ).start();					
 			
 			
 			
 		}//end while 
 		
 		
+	}// end runsever
+	
+	public void addOrder(Order orderToAdd)
+	{
+		
+		//if we cant fill right away, add the order to the orderbook
+		if( !instantFill(orderToAdd))
+			orderbook.get(orderToAdd.price).add(orderToAdd);
+
+	}
+	
+	public boolean instantFill(Order orderToFill){
+		/* Two branches
+		 * 
+		 * i
+		 * 	
+		 * 
+		 * 
+		 * 
+		 * 
+		 */
+		if (orderToFill.type == OrderType.BUY)
+		{
+			
+			for ( ConcurrentMap.Entry<Double, Collection<Order> > priceLevel : orderbook.entrySet())
+			{
+				for (Order individualOrder : priceLevel.getValue())
+				{
+					if (orderToFill.price <= individualOrder.price && individualOrder.type == OrderType.SELL)
+					{
+						priceLevel.getValue().remove(individualOrder);// remove the order.
+						match(orderToFill, individualOrder);
+						return true;
+	
+					
+					}
+					
+					
+				}
+				
+				
+			}
+			
+			
+			
+			
+		}
+		
+		
+		
+		//
+		return false;
+		
+	}
+	
+	public void match(Order orderOne, Order orderTwo)
+	{
+		// send fill notification to each clientID
+		String fill = "Fill Notification!  Buy Side: " + orderOne.clientID + " Sell Side: " + orderTwo.clientID + " Price: " + String.valueOf(orderTwo.price) + "Quantity: " + String.valueOf(orderTwo.quantity) ;
+		
+		clientFeeds.get(orderOne.clientID).feedMessageQueue.add(fill);
+		clientFeeds.get(orderTwo.clientID).feedMessageQueue.add(fill);
+		
+		//add to log somewhere*****
+		
+	}
+	
+	public void cancelOrder(String clientID, String orderID)
+	{
+		
+	}
+	
+	public void sendMarketData(String clientID)
+	{
+		
 	}
 	
 	
-	
+	public boolean registerClientFeed(String clientID, Connection connObject)
+	{
+		//this method needs to put clients in an exchange dictionary <clientID, connObject>
+		
+		this.clientFeeds.put(clientID,  connObject);
+
+		return false;
+		
+	}
+	public boolean removeClientFeed(String clientID )
+	{
+		this.clientFeeds.remove(clientID);
+		return true;
+		
+	}
 	
 	
 	//	
@@ -81,7 +194,7 @@ public class Exchange {
 	 * 
 	 */
 	
-	public ConcurrentMap<Double, Collection<String>> orderbook;  //order book for all prices.
+	//public ConcurrentMap<Double, Collection<String>> orderbook;  //order book for all prices.
 	
 	
 	
