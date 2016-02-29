@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.*;
 public class Exchange {
@@ -18,7 +19,7 @@ public class Exchange {
 	
 	private Dictionary<String, Connection> clientFeeds;
 	
-	private ConcurrentMap<Double, Collection<Order>> orderbook;
+	private ConcurrentMap<Double, Queue<Order>> orderbook;
 	
 	public static void main(String args[]) throws IOException{
 		
@@ -81,15 +82,7 @@ public class Exchange {
 	}
 	
 	public boolean instantFill(Order orderToFill){
-		/* Two branches
-		 * 
-		 * i
-		 * 	
-		 * 
-		 * 
-		 * 
-		 * 
-		 */
+		
 		if (orderToFill.type == OrderType.BUY)
 		{
 			
@@ -171,6 +164,7 @@ public class Exchange {
 		//then send message to the client.
 		
 		
+		
 	}
 	
 	public void sendMarketData(String clientID)
@@ -180,11 +174,23 @@ public class Exchange {
 		
 		StringBuilder book = new StringBuilder();
 		
-		// for each price level
-				// if first order exists,  print it's type and price/qty
 		
-		//r.append(System.getProperty("line.separator"));  for new line chars independt of system 
+		// loop to build the book string
+		for ( ConcurrentMap.Entry<Double, Queue<Order> > priceLevel : orderbook.entrySet()){
+			
+			Order order = priceLevel.getValue().peek();
 		
+			book.append("Price: " + String.valueOf(order.price) + "Quantity: " + String.valueOf(order.quantity) + "Type: " +  order.type.toString()  ) ;
+			book.append(System.getProperty("line.separator"));
+			
+		//	book.append(
+			
+			
+			//book.append(str)
+		}
+		
+		//send book to the client that requested it
+		clientFeeds.get(clientID).feedMessageQueue.add(book.toString());
 	}
 	
 	
