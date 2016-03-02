@@ -51,12 +51,16 @@ public class Connection implements Runnable {
 			 // now we must get the ID, and type from the client
 			//Args from client  args[clientID, connectionType]
 			 String bufferString = "";
+			System.out.println("Reading for type of connection from client...");
 			
 			bufferString = in.readLine();
-			String[] clientInfo = bufferString.split("|", 5);
+			String[] clientInfo = bufferString.split("\\|");
+			
 			this.clientID = clientInfo[0];
-			this.connType = ClientConnectionType.valueOf(clientInfo[1]);
-			 
+			System.out.println("Conn type passed is " + clientInfo[1]);
+			
+			this.connType = ClientConnectionType.valueOf(clientInfo[1].trim());	
+			System.out.println("Starting feed for client " + clientID + "on connection type " + connType.toString()); 
 			//we also need to add this connection to the exchange's dictionary of conenctions
 			
 			
@@ -96,7 +100,7 @@ public class Connection implements Runnable {
 		
 		//listen in loop for messages from client
 		// parse message, and add to exchange global queue 
-		
+		System.out.println("Starting exec connection now...");
 		while(!isStopped){
 			String input;
 			try{
@@ -104,7 +108,9 @@ public class Connection implements Runnable {
 			
 				while( ( input = in.readLine()) != null)
 				{
-					String[] messageArray = input.split("|", 5);
+					String[] messageArray = input.split("\\|", 5);
+					System.out.println("Message received from the client: " + input);
+					
 					//now we process the message and send commands to exchange accordingly
 					String messageType = messageArray[1];
 					
@@ -112,6 +118,7 @@ public class Connection implements Runnable {
 					
 					case "NewOrder":
 						//create new order object.
+						System.out.println("New Order received!");
 						Order incomingOrder = new Order(messageArray[0], OrderType.valueOf(messageArray[2]), Integer.parseInt(messageArray[3]), Double.parseDouble(messageArray[4]));
 						exchange.addOrder(incomingOrder);	
 						break;

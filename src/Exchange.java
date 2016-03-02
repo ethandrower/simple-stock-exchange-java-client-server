@@ -54,6 +54,7 @@ public class Exchange {
 				System.out.println("Error connecting to client");
 			}
 			
+			System.out.println
 			
 			new Thread(
 					new Connection(clientSock, this) ).start();					
@@ -67,6 +68,7 @@ public class Exchange {
 	
 	public void addOrder(Order orderToAdd)
 	{
+		System.out.println("Exchange addOrder has been called");
 		
 		//if we cant fill right away, add the order to the orderbook
 		if( !instantFill(orderToAdd))
@@ -86,7 +88,7 @@ public class Exchange {
 		if (orderToFill.type == OrderType.BUY)
 		{
 			
-			for ( ConcurrentMap.Entry<Double, Collection<Order> > priceLevel : orderbook.entrySet())
+			for ( ConcurrentMap.Entry<Double, Queue<Order> > priceLevel : orderbook.entrySet())
 			{
 				for (Order individualOrder : priceLevel.getValue())
 				{
@@ -109,7 +111,7 @@ public class Exchange {
 	
 			
 			Order currentBestFill = new Order();
-			for ( ConcurrentMap.Entry<Double, Collection<Order> > priceLevel : orderbook.entrySet())
+			for ( ConcurrentMap.Entry<Double, Queue<Order> > priceLevel : orderbook.entrySet())
 			{
 				for (Order individualOrder : priceLevel.getValue())
 				{
@@ -171,6 +173,7 @@ public class Exchange {
 	{
 		//giant strig builder   print statment that is all (top) orders in the queue.
 		
+		System.out.println("Sending Market Data...");
 		
 		StringBuilder book = new StringBuilder();
 		

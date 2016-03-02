@@ -77,11 +77,13 @@ public class Client {
 		//open socket connection to server.
 		Socket connExchange = new Socket("localhost", port);
 		BufferedReader input = new BufferedReader(new InputStreamReader(connExchange.getInputStream()));
-		PrintWriter output = new PrintWriter(connExchange.getOutputStream());
+		PrintWriter output = new PrintWriter(connExchange.getOutputStream(), true);
 		
 		
 		// send initial message to server to identify connection type.  array[clientID, Type]
 		String initExec = clientID + "|" +  "EXEC";
+		System.out.println("Sending client Id and exec feed to exchange...");
+		
 		output.println(initExec);
 		
 		boolean isRunning = true;
@@ -102,9 +104,12 @@ public class Client {
 			switch(action){
 			case 1:
 				//creat order
-				System.out.println("Order Entry:  [buy/sell] | [quantity] | [price]");
+				System.out.println("Order Entry:  [BUY/SELL] | [quantity] | [price]");
 				String order = c.readLine();
-				String[] orderArray = order.split("|");
+				String[] orderArray = order.split("\\|");
+				System.out.println("Making Order, field1: " + orderArray[0]);
+				System.out.println("Making Order, field2: " + orderArray[1]);
+				System.out.println("Making Order, field3: " + orderArray[2]);
 				
 				
 				System.out.println("Sending order...");
