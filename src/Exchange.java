@@ -1,11 +1,13 @@
 import java.awt.List;
 import java.util.Dictionary;
-
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.*;
@@ -17,9 +19,9 @@ public class Exchange {
 	//  2.  Start a thread for each connection  ( each thread will be a Connection object)
 	private ServerSocket serverSock; //servers main listening socket.
 	
-	private Dictionary<String, Connection> clientFeeds;
+	private ConcurrentMap<String, Connection> clientFeeds;
 	
-	private ConcurrentMap<Double, Queue<Order>> orderbook;
+	private ConcurrentMap<Double, PriorityQueue<Order>> orderbook;
 	
 	public static void main(String args[]) throws IOException{
 		
@@ -35,6 +37,8 @@ public class Exchange {
 	
 	public Exchange(){
 		// constructor for our main exchange
+		orderbook = new ConcurrentHashMap<Double, PriorityQueue<Order>>();
+		clientFeeds = new ConcurrentHashMap<String, Connection>();
 		
 		
 	}
@@ -54,7 +58,7 @@ public class Exchange {
 				System.out.println("Error connecting to client");
 			}
 			
-			System.out.println
+			
 			
 			new Thread(
 					new Connection(clientSock, this) ).start();					
@@ -74,10 +78,29 @@ public class Exchange {
 		if( !instantFill(orderToAdd))
 		{
 			//add the order to the book
-			orderbook.get(orderToAdd.price).add(orderToAdd);
+			System.out.println("Adding order to book now...");
 			
-			//Send a fill message to the correct client
-			clientFeeds.get(orderToAdd.clientID).feedMessageQueue.add("Order added with ID: " + orderToAdd.orderID.toString());
+			if( orderbook.containsKey(orderToAdd.price))
+			{
+				System.out.println("Order book contains orders at that level, adding our new order..");
+				orderbook.get(orderToAdd.price).add(orderToAdd);
+				
+				//Send a fill message to the correct client
+				clientFeeds.get(orderToAdd.clientID).feedMessageQueue.add("Order added with ID: " + orderToAdd.orderID.toString());
+				
+			}
+			else
+			{
+				System.out.println("Order book has no orders at that price level, creating price level now...");
+				PriorityQueue<Order> newprice = new PriorityQueue<Order>();
+				newprice.add(orderToAdd);
+				orderbook.putIfAbsent(orderToAdd.price, newprice );
+				System.out.println("Order has been added!");
+				
+			
+			}
+		
+			
 			
 		}
 
@@ -88,22 +111,30 @@ public class Exchange {
 		if (orderToFill.type == OrderType.BUY)
 		{
 			
-			for ( ConcurrentMap.Entry<Double, Queue<Order> > priceLevel : orderbook.entrySet())
+			try 
 			{
-				for (Order individualOrder : priceLevel.getValue())
+				for ( ConcurrentMap.Entry<Double, PriorityQueue<Order> > priceLevel : orderbook.entrySet())
 				{
-					if (orderToFill.price <= individualOrder.price && individualOrder.type == OrderType.SELL)
+					for (Order individualOrder : priceLevel.getValue())
 					{
-						priceLevel.getValue().remove(individualOrder);// remove the order.
-						match(orderToFill, individualOrder);
-						return true;		
-					}			
-				}
+						if (orderToFill.price <= individualOrder.price && individualOrder.type == OrderType.SELL)
+						{
+							priceLevel.getValue().remove(individualOrder);// remove the order.
+							match(orderToFill, individualOrder);
+							return true;		
+						}			
+					}
 				
-			}// end of outer for each
+				}// end of outer for each
+			}//end try
 			
 			
+			catch (Exception e)
+			{ System.out.println("Exception in instant fill " + e.toString());
 			
+			
+			}
+		
 			
 		} // end order type IF statement
 		else if (orderToFill.type == OrderType.SELL)
@@ -111,7 +142,7 @@ public class Exchange {
 	
 			
 			Order currentBestFill = new Order();
-			for ( ConcurrentMap.Entry<Double, Queue<Order> > priceLevel : orderbook.entrySet())
+			for ( ConcurrentMap.Entry<Double, PriorityQueue<Order> > priceLevel : orderbook.entrySet())
 			{
 				for (Order individualOrder : priceLevel.getValue())
 				{
@@ -140,7 +171,7 @@ public class Exchange {
 		} // end iff 
 		
 		
-		
+		System.out.println("No Instant Fill Made, returning false...");
 		//
 		return false;
 		
@@ -179,11 +210,11 @@ public class Exchange {
 		
 		
 		// loop to build the book string
-		for ( ConcurrentMap.Entry<Double, Queue<Order> > priceLevel : orderbook.entrySet()){
+		for ( ConcurrentMap.Entry<Double, PriorityQueue<Order> > priceLevel : orderbook.entrySet()){
 			
 			Order order = priceLevel.getValue().peek();
 		
-			book.append("Price: " + String.valueOf(order.price) + "Quantity: " + String.valueOf(order.quantity) + "Type: " +  order.type.toString()  ) ;
+			book.append("Price: " + String.valueOf(order.price) + "    Quantity: " + String.valueOf(order.quantity) + " 	Type: " +  order.type.toString()  ) ;
 			book.append(System.getProperty("line.separator"));
 			
 		//	book.append(
@@ -191,16 +222,32 @@ public class Exchange {
 			
 			//book.append(str)
 		}
+		System.out.println("Market Data assembled! " + book.toString());
+		
 		
 		//send book to the client that requested it
-		clientFeeds.get(clientID).feedMessageQueue.add(book.toString());
+			if(this.clientFeeds.containsKey(clientID))
+			{
+				System.out.println("Client Feeds contains the key!");
+				Connection ethan = this.clientFeeds.get(clientID);
+				System.out.println(ethan.toString());
+				System.out.println("book to string not working? " + book.toString());
+				
+				ethan.feedMessageQueue.add(book.toString());
+				
+				//this.clientFeeds.get(clientID).feedMessageQueue.add(book.toString());
+		
+			}
+			else
+				System.out.println("Could not find a FEEd connection to send market data too..");
+			
 	}
 	
 	
 	public boolean registerClientFeed(String clientID, Connection connObject)
 	{
 		//this method needs to put clients in an exchange dictionary <clientID, connObject>
-		
+		System.out.println("Putting clientID " + clientID + "Into client feeds object");
 		this.clientFeeds.put(clientID,  connObject);
 
 		return false;

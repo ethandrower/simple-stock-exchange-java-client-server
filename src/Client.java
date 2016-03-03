@@ -46,6 +46,7 @@ public class Client {
 		switch(connectionType){
 		
 		case "FEED":
+			System.out.println("Starting feed method call...");
 		startFeed(clientID, port);	
 		//	new Thread(	new ClientGatewayReader()).start();					
 		
@@ -165,17 +166,19 @@ public class Client {
 
 		Socket connFeedExchange = new Socket("localhost", 123);
 		BufferedReader input = new BufferedReader(new InputStreamReader(connFeedExchange.getInputStream()));
-		PrintWriter output = new PrintWriter(connFeedExchange.getOutputStream());
+		PrintWriter output = new PrintWriter(connFeedExchange.getOutputStream(), true);
 		
 		
 		// send initial message to server to identify connection type.  array[clientID, Type]
 		String initExec = clientID + "|" +  "FEED";
+		System.out.println("Sending ID and feed request to server " + clientID );
 		output.println(initExec);
 		
 		boolean isRunning = true;
 		
 		while(isRunning)
 		{
+			System.out.println("Feed is ready! Waiting for lines from exchange....");
 			String feed = input.readLine();
 			System.out.println("Message from gateway received!");
 			System.out.println(feed);

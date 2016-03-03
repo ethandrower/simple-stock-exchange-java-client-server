@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class Connection implements Runnable {
@@ -25,7 +26,7 @@ public class Connection implements Runnable {
 	private String clientID;
 	private ClientConnectionType connType;
 	
-	public Queue<String> feedMessageQueue;  // exchange will add things into this queue
+	public PriorityQueue<String> feedMessageQueue;  // exchange will add things into this queue
 	private boolean isStopped = false;
 	
 	private PrintWriter out;
@@ -37,6 +38,8 @@ public class Connection implements Runnable {
 	{
 		this.conn = clientSocket;
 		this.exchange = excObj;
+		feedMessageQueue = new PriorityQueue<String>();
+		
 		
 	}
 	
@@ -62,7 +65,6 @@ public class Connection implements Runnable {
 			this.connType = ClientConnectionType.valueOf(clientInfo[1].trim());	
 			System.out.println("Starting feed for client " + clientID + "on connection type " + connType.toString()); 
 			//we also need to add this connection to the exchange's dictionary of conenctions
-			
 			
 			
 			//now we know the client ID and the connection type, so lets do
@@ -129,6 +131,9 @@ public class Connection implements Runnable {
 						
 						
 					case "MarketData":
+						System.out.println("Sending Request for market data, client ID: " + messageArray[0]);
+						
+						exchange.sendMarketData(messageArray[0]);
 						break;
 						
 					 default:
@@ -147,21 +152,34 @@ public class Connection implements Runnable {
 		
 	}//end runExec
 	
-	public void runFeed(){
+	public void runFeed() throws IOException{
 		// wait for messages to be put in this connections 'queue'
 		// transmist message to client.
+		System.out.println("Registering client with exchange..." + this.toString());
+		exchange.registerClientFeed(clientID, this);
+		// out = new PrintWriter(conn.getOutputStream(), true);
 		
-		while(!isStopped)
+		while(true)
 		{
-			if (feedMessageQueue.size() > 0){
-				for (String message : feedMessageQueue)
+			//System.out.println("feed message queue is... " + feedMessageQueue.peek());
+			//feedMessageQueue.peek();
+			String message = feedMessageQueue.peek();
+			//if (this.feedMessageQueue.peek() != null ){
+			if( !message.isEmpty()){
+				//for (String message : feedMessageQueue)
 				{
+					System.out.println("Sending message to client: " + message);
+					
 					out.println(message);
+					this.feedMessageQueue.remove();
+					
 				}
 				
 			}
 			
 		}//end while
+		//System.out.println("Out of runFeedLoop");
+		
 	}// end runFeed
 	
 	
