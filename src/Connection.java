@@ -26,7 +26,8 @@ public class Connection implements Runnable {
 	private String clientID;
 	private ClientConnectionType connType;
 	
-	public PriorityQueue<String> feedMessageQueue;  // exchange will add things into this queue
+	public PriorityQueue<String> feedMessageQueue;  // not working, skipping implementation aroudn this.
+	
 	private boolean isStopped = false;
 	
 	private PrintWriter out;
@@ -159,29 +160,41 @@ public class Connection implements Runnable {
 		exchange.registerClientFeed(clientID, this);
 		// out = new PrintWriter(conn.getOutputStream(), true);
 		
-		while(true)
+		while(!isStopped)
 		{
 			//working but i don't know why i need the print...
 		//	System.out.println("feed message queue is... " + feedMessageQueue.peek());
 			//feedMessageQueue.peek();
+			//System.out.println("FeedQueueSize = " +  this.feedMessageQueue.size());
 			
-		//	if (this.feedMessageQueue.peek() != null ){
-				for (String message : feedMessageQueue)
-				{
+		/*
+			if (   feedMessageQueue.size() > 0 ){
+				
+				
+					
+					String message = this.feedMessageQueue.remove();
+					
 					System.out.println("Sending message to client: " + message);
 					
 					out.println(message);
-					this.feedMessageQueue.remove();
+					//this.feedMessageQueue.remove();
 					
 				}
 				
 			//}
-			
+				*/
 		}//end while
 		//System.out.println("Out of runFeedLoop");
-		
+	
+			
 	}// end runFeed
 	
-	
+	public void addMessage(String message)
+	{
+		System.out.println("Connection adding new message to it's own queue");
+		
+		this.feedMessageQueue.add(message);
+		out.println(message);
+	}
 
 }

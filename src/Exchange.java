@@ -230,10 +230,11 @@ public class Exchange {
 			{
 				System.out.println("Client Feeds contains the key!");
 				Connection ethan = this.clientFeeds.get(clientID);
-				System.out.println(ethan.toString());
-				System.out.println("book to string not working? " + book.toString());
+				//System.out.println(ethan.toString());
+				//System.out.println("book to string not working? " + book.toString());
 				
-				ethan.feedMessageQueue.add(book.toString());
+				//ethan.feedMessageQueue.add(book.toString());
+				ethan.addMessage(book.toString());
 				
 				//this.clientFeeds.get(clientID).feedMessageQueue.add(book.toString());
 		
