@@ -161,12 +161,12 @@ public class Connection implements Runnable {
 		
 		while(true)
 		{
-			//System.out.println("feed message queue is... " + feedMessageQueue.peek());
+			//working but i don't know why i need the print...
+		//	System.out.println("feed message queue is... " + feedMessageQueue.peek());
 			//feedMessageQueue.peek();
-			String message = feedMessageQueue.peek();
-			//if (this.feedMessageQueue.peek() != null ){
-			if( !message.isEmpty()){
-				//for (String message : feedMessageQueue)
+			
+		//	if (this.feedMessageQueue.peek() != null ){
+				for (String message : feedMessageQueue)
 				{
 					System.out.println("Sending message to client: " + message);
 					
@@ -175,7 +175,7 @@ public class Connection implements Runnable {
 					
 				}
 				
-			}
+			//}
 			
 		}//end while
 		//System.out.println("Out of runFeedLoop");
