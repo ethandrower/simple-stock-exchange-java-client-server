@@ -144,23 +144,27 @@ public class Exchange {
 			Order currentBestFill = new Order();
 			for ( ConcurrentMap.Entry<Double, PriorityQueue<Order> > priceLevel : orderbook.entrySet())
 			{
-				for (Order individualOrder : priceLevel.getValue())
-				{
+			
+				//	for (Order individualOrder : priceLevel.getValue())
+				//{
+					Order individualOrder = priceLevel.getValue().peek();
 					
 					
-					if (orderToFill.price >= individualOrder.price && individualOrder.type == OrderType.BUY)
+					if (orderToFill.price <= individualOrder.price && individualOrder.type == OrderType.BUY)
 					{
 						//potential match found,  lets keep looking for a better price.
+					
 						currentBestFill = individualOrder;	
 						break;
 					//	return true;		
 					}			
-				}
+				
 			}// end oouter for
 			
+	
 			if (currentBestFill.isRealOrder)
 			{
-				
+				System.out.println("Current Best Fill found in instant fill...");
 				orderbook.get(currentBestFill.price).remove(currentBestFill);  // this may be buggy
 				
 				//priceLevel.getValue().remove(individualOrder);// remove the order.
@@ -184,8 +188,9 @@ public class Exchange {
 		
 		String fill = "Fill Notification!  Buy Side: " + orderOne.clientID + " Sell Side: " + orderTwo.clientID + " Price: " + String.valueOf(orderTwo.price) + "Quantity: " + String.valueOf(orderTwo.quantity) ;
 		
-		clientFeeds.get(orderOne.clientID).feedMessageQueue.add(fill);
-		clientFeeds.get(orderTwo.clientID).feedMessageQueue.add(fill);
+		clientFeeds.get(orderOne.clientID).addMessage(fill);
+		clientFeeds.get(orderTwo.clientID).addMessage(fill);
+		
 		
 		//add to log somewhere*****
 		
