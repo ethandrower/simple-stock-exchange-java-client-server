@@ -96,6 +96,8 @@ public class Exchange {
 				newprice.add(orderToAdd);
 				orderbook.putIfAbsent(orderToAdd.price, newprice );
 				System.out.println("Order has been added!");
+				clientFeeds.get(orderToAdd.clientID).addMessage("Order has been added to the book, ID: "+ orderToAdd.orderID.toString());
+				
 				
 			
 			}
@@ -202,7 +204,27 @@ public class Exchange {
 		// iterate through the orderbook until you find the ORDER ID
 		// when you do find it, remove it
 		//then send message to the client.
+		for ( ConcurrentMap.Entry<Double, PriorityQueue<Order> > priceLevel : orderbook.entrySet())
+		{
 		
+				for (Order individualOrder : priceLevel.getValue())
+				{
+					System.out.println("COmparing order id " + individualOrder.orderID.toString() + " to order id " + orderID);
+					
+					if( individualOrder.orderID.toString().equals(orderID) )
+					{
+						//remove that order!
+						System.out.println("Removing order # " + orderID);
+						priceLevel.getValue().remove(individualOrder);
+						
+						
+						
+					}
+						
+				}
+			
+			
+		}
 		
 		
 	}

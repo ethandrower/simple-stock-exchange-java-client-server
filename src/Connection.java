@@ -127,6 +127,9 @@ public class Connection implements Runnable {
 						break;
 						
 					case "CancelOrder":
+						System.out.println("Cancellation request received");
+						
+						exchange.cancelOrder(messageArray[0], messageArray[2]);
 						
 						break;
 						
