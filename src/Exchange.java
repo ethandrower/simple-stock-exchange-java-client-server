@@ -180,6 +180,8 @@ public class Exchange {
 	public void match(Order orderOne, Order orderTwo)
 	{
 		// send fill notification to each clientID
+		System.out.println("Match made!");
+		
 		String fill = "Fill Notification!  Buy Side: " + orderOne.clientID + " Sell Side: " + orderTwo.clientID + " Price: " + String.valueOf(orderTwo.price) + "Quantity: " + String.valueOf(orderTwo.quantity) ;
 		
 		clientFeeds.get(orderOne.clientID).feedMessageQueue.add(fill);
@@ -213,9 +215,12 @@ public class Exchange {
 		for ( ConcurrentMap.Entry<Double, PriorityQueue<Order> > priceLevel : orderbook.entrySet()){
 			
 			Order order = priceLevel.getValue().peek();
-		
+			
+			if (order != null)
+			{
 			book.append("Price: " + String.valueOf(order.price) + "    Quantity: " + String.valueOf(order.quantity) + " 	Type: " +  order.type.toString()  ) ;
 			book.append(System.getProperty("line.separator"));
+			}
 			
 		//	book.append(
 			
