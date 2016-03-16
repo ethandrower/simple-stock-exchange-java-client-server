@@ -151,7 +151,8 @@ public class Exchange {
 				//{
 					Order individualOrder = priceLevel.getValue().peek();
 					
-					
+					if (individualOrder == null)
+						return false;
 					if (orderToFill.price <= individualOrder.price && individualOrder.type == OrderType.BUY)
 					{
 						//potential match found,  lets keep looking for a better price.

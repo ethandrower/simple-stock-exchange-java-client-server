@@ -3,7 +3,7 @@
 #build all
 
 all:
-	javac -d /Users/user/Documents/workspace/final_distrib/out/ -sourcepath src /Users/user/Documents/workspace/final_distrib/src//*.java
+	javac -d "C:\Users\ethan\Dropbox\school\distributed systems\src-final\out" -sourcepath src "C:\Users\ethan\Dropbox\school\distributed systems\src-final\src\/*.java"
 
 clean:
-	rm -f /Users/user/Documents/workspace/final_distrib/out/*.class
+	rm -f "C:\Users\ethan\Dropbox\school\distributed systems\src-final\out\*.class"
