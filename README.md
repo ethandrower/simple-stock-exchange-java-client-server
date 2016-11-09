@@ -3,12 +3,8 @@ csc376 final project
 Project Proposal
 
 Name of Project: Online Exchange
-
-Students:
 Ethan Drower
-Chris Vick
-Vince Zipparro
-Prerak Thakkar
+
 
 Summary (25 words or less):
 We will create an online exchange that accepts and matches orders from connecting clients.
